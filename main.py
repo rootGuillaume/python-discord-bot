@@ -19,6 +19,8 @@ from credentials import Token
     - contenu du message
 
 5. Intégrer des logs avec loggins
+
+6. Revoir la fonction pour check le channel pinned ou l'author = bot
 """
 
 
