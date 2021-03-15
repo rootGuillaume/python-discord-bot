@@ -5,9 +5,18 @@ from credentials import Token
 
 """
 0. Commande Help
+
 1. Configurer le bot pour lui donner le channel pinned
+
 2. Empêcher de pinned les messages du bot
+
 3. Empêcher de pinned les messages dans le channel pinned
+
+4. Récupérer les infos du messages pinned :
+    - nom de l'auteur
+    - date et heure du message
+    - tag de l'auteur
+    - contenu du message
 """
 
 
@@ -36,8 +45,16 @@ async def on_message(message):
     pinned_channel = bot.get_channel(821135199706021928)
     channel = message.channel
 
+
+    # The pinned emoji
     def check(reaction, user):
         return str(reaction.emoji) == '📌'
+
+
+    # Check the pinned channel
+    def is_pinned_channel():
+        if channel == pinned_channel:
+            return True
 
     try:
         reaction, user = await bot.wait_for('reaction_add', check=check)
@@ -45,14 +62,29 @@ async def on_message(message):
     except asyncio.TimeoutError:
         pass
 
-    #except:
     else:
+
+        # If the message is a file
         if message.attachments:
             await channel.send('Cant pinned picture')
             pass
 
+        # If the message is not a file
         elif not message.attachments:
-            await pinned_channel.send(message.content)
+
+            # Check if author is the bot
+            if is_pinned_channel():
+                await channel.send('Cant pinned in the pinned channel')
+                pass
+
+            elif not is_pinned_channel():
+                if message.author == bot.user:
+
+                    await channel.send('Cant pinned message from the Bot')
+                    pass
+
+                else:
+                    await pinned_channel.send(message.content)
 
 
 
