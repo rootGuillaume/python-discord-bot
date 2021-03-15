@@ -17,6 +17,8 @@ from credentials import Token
     - date et heure du message
     - tag de l'auteur
     - contenu du message
+
+5. Intégrer des logs avec loggins
 """
 
 
