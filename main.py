@@ -28,8 +28,8 @@ from embeds import BotEmbed
 
 
 # ==========| Variables |==========
-bot = Bot(command_prefix='!')
-print('Bot running...')
+bot = Bot(command_prefix='!') # Bot instance
+
 
 
 # ==========| Functions |==========
@@ -85,4 +85,4 @@ async def on_message(message):
 
 
 # ==========| Main |==========
-bot.run(Token.token)
+bot.run(Token.token) # Run bot
