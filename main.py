@@ -8,21 +8,21 @@ from credentials import Token
 
 1. Configurer le bot pour lui donner le channel pinned
 
-2. Empêcher de pinned les messages du bot
+        2. Empêcher de pinned les messages du bot
 
-3. Empêcher de pinned les messages dans le channel pinned
+        3. Empêcher de pinned les messages dans le channel pinned
 
-4. Récupérer les infos du messages pinned :
-    - nom de l'auteur
-    - date et heure du message
-    - tag de l'auteur
-    - contenu du message
+        4. Récupérer les infos du messages pinned :
+            - nom de l'auteur
+            - date et heure du message
+            - tag de l'auteur
+            - contenu du message
 
 5. Intégrer des logs avec loggins
 
-6. Revoir la fonction pour check le channel pinned ou l'author = bot
+        6. Revoir la fonction pour check le channel pinned ou l'author = bot
 
-7.
+7. Autoriser seulement certain rôle à pinned
 """
 
 
@@ -50,9 +50,9 @@ async def on_message(message):
     pinned_channel = bot.get_channel(821135199706021928)
     channel = message.channel
 
-    server_id = message.guild.id
-    channel_id = message.channel.id
-    message_id = message.id
+#    server_id = message.guild.id
+#    channel_id = message.channel.id
+#    message_id = message.id
 
     # The pinned emoji
     def check(reaction, user):
@@ -65,19 +65,33 @@ async def on_message(message):
             return True
 
 
-    url = 'https://discordapp.com/channels/' + str(server_id) + '/' + str(channel_id) + '/' + str(message_id)
+    #url_message = 'https://discordapp.com/channels/' + str(server_id) + '/' + str(channel_id) + '/' + str(message_id)
+
+
+
+#    message_time = str(message.created_at.time()).split(':')
+#
+#    hours = message_time[0]
+#    minutes = message_time[1]
+#
+#    message_time = hours + ':' + minutes
+
 
     # === Embed pinned ===
-    pinned_embed = discord.Embed(
-        description=message.content,
-        color=0xf54254
-    )
-
-    pinned_embed.set_author(
-        name=message.author.display_name,
-        icon_url=message.author.avatar_url
-    )
-
+#    pinned_embed = discord.Embed(
+#        description=message.content,
+#        color=0xf54254
+#    )
+#
+#    pinned_embed.set_author(
+#        name=message.author.display_name,
+#        icon_url=message.author.avatar_url
+#    )
+#
+#    pinned_embed.add_field(name="🗓 Dat️e", value=message.created_at.date(), inline=True)
+#    pinned_embed.add_field(name="🕓 Time", value=message_time, inline=True)
+#    pinned_embed.add_field(name="📌 Pinned by", value=user_pinned.mention, inline=True)
+#    pinned_embed.add_field(name="🔗 Message Link", value=url_message, inline=False)
 
 
     # === Error channel pinned ===
@@ -98,6 +112,13 @@ async def on_message(message):
 
         # If the message is a file
         if message.attachments:
+            #url_image_pinned = 'https://discordapp.com/channels/' + str(server_id) + '/' + str(channel_id) + '/' + str(message_id) + '/' + message.attachments.filename
+
+            #pinned_embed = discord.Embed(
+            #    description=message.content + '\n' + url_image_pinned,
+            #    color=0xf54254
+            #)
+
             await channel.send('Cant pinned picture')
             pass
 
@@ -105,17 +126,6 @@ async def on_message(message):
         elif not message.attachments:
 
 
-            message_time = str(message.created_at.time()).split(':')
-
-            hours = message_time[0]
-            minutes = message_time[1]
-
-            message_time = hours + ':' + minutes
-
-            pinned_embed.add_field(name="Date", value=message.created_at.date(), inline=True)
-            pinned_embed.add_field(name="Time", value=message_time, inline=True)
-            pinned_embed.add_field(name="📌", value=user_pinned.mention, inline=True)
-            pinned_embed.add_field(name="Message Link", value=url, inline=False)
 
             if message.author == bot.user or is_pinned_channel():
                 #await channel.send('Cant pinned in the pinned channel')
