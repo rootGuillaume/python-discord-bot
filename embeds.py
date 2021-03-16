@@ -3,7 +3,7 @@ import discord
 
 class BotEmbed:
 
-    def pinned_embed(description, msg, user):
+    def pinned_embed(msg, description, user):
         server_id = msg.guild.id
         channel_id = msg.channel.id
         message_id = msg.id

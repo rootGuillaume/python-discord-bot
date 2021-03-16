@@ -1,7 +1,7 @@
 import discord, sys, asyncio
 from discord.ext.commands import Bot
 from credentials import Token
-
+from embeds import BotEmbed
 
 """
 0. Commande Help
@@ -28,12 +28,8 @@ from credentials import Token
 
 
 # ==========| Variables |==========
-#bot = discord.bot()
 bot = Bot(command_prefix='!')
-#bot.remove_command('help')
 print('Bot running...')
-
-
 
 
 # ==========| Functions |==========
@@ -45,16 +41,14 @@ async def delete(ctx, number: int):
         await each_message.delete()
 
 
+
+# ==========| Pinned Messages |==========
 @bot.event
 async def on_message(message):
     pinned_channel = bot.get_channel(821135199706021928)
-    channel = message.channel
+    channel = message.channel # Get channel instance
 
-#    server_id = message.guild.id
-#    channel_id = message.channel.id
-#    message_id = message.id
-
-    # The pinned emoji
+    # Check the pinned emoji
     def check(reaction, user):
         return str(reaction.emoji) == '📌'
 
@@ -65,81 +59,28 @@ async def on_message(message):
             return True
 
 
-    #url_message = 'https://discordapp.com/channels/' + str(server_id) + '/' + str(channel_id) + '/' + str(message_id)
-
-
-
-#    message_time = str(message.created_at.time()).split(':')
-#
-#    hours = message_time[0]
-#    minutes = message_time[1]
-#
-#    message_time = hours + ':' + minutes
-
-
-    # === Embed pinned ===
-#    pinned_embed = discord.Embed(
-#        description=message.content,
-#        color=0xf54254
-#    )
-#
-#    pinned_embed.set_author(
-#        name=message.author.display_name,
-#        icon_url=message.author.avatar_url
-#    )
-#
-#    pinned_embed.add_field(name="🗓 Dat️e", value=message.created_at.date(), inline=True)
-#    pinned_embed.add_field(name="🕓 Time", value=message_time, inline=True)
-#    pinned_embed.add_field(name="📌 Pinned by", value=user_pinned.mention, inline=True)
-#    pinned_embed.add_field(name="🔗 Message Link", value=url_message, inline=False)
-
-
-    # === Error channel pinned ===
-    error_channel_embed = discord.Embed(
-        title='Error !',
-        description="You can't pinned in this channel",
-        color=0xf5a742
-    )
-
-    try:
+    try: # Get User instance
         reaction, user = await bot.wait_for('reaction_add', check=check)
         user_pinned = user
+
     except asyncio.TimeoutError:
         pass
 
-    # Pinned processing
-    else:
+    else: # Pinned process
+        if message.author != bot.user or not is_pinned_channel(): # If Bot isn't message author or channel is pinned channel
 
-        # If the message is a file
-        if message.attachments:
-            #url_image_pinned = 'https://discordapp.com/channels/' + str(server_id) + '/' + str(channel_id) + '/' + str(message_id) + '/' + message.attachments.filename
-
-            #pinned_embed = discord.Embed(
-            #    description=message.content + '\n' + url_image_pinned,
-            #    color=0xf54254
-            #)
-
-            await channel.send('Cant pinned picture')
-            pass
-
-        # If the message is not a file
-        elif not message.attachments:
-
-
-
-            if message.author == bot.user or is_pinned_channel():
-                #await channel.send('Cant pinned in the pinned channel')
-                await channel.send(embed=error_channel_embed)
+            if message.attachments: # If the message is a file
+                image_url = message.attachments[0].url
+                embed = BotEmbed.pinned_embed(message, message.content, user)
+                embed.set_image(url=image_url) # Add an image to embed
+                await pinned_channel.send(embed=embed) # Send embed to pinned channel
                 pass
 
-            else:
-                await pinned_channel.send(embed=pinned_embed)
-                #await pinned_channel.send(message.content)
+            else: # If the message has no attachments
+                embed = BotEmbed.pinned_embed(message, message.content, user)
+                content = message.content
+                await pinned_channel.send(embed=embed) # Send embed to pinned channel
                 pass
-
-
-
-
 
 
 
