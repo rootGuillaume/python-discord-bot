@@ -7,6 +7,7 @@ class BotEmbed:
     c_success = 0x48c774
     c_error = 0xff3860
     c_warning = 0xffdd57
+    c_info = 0x209cee
 
     # Embed | Render pinned message
     def pinned_embed(msg, description, user):
@@ -42,6 +43,7 @@ class BotEmbed:
         return embed # Return embed object
 
 
+
     # Embed | Set Pinned Channel
     def set_pinned_channel_embed():
         embed = discord.Embed( # Embed Structure
@@ -52,14 +54,16 @@ class BotEmbed:
         return embed
 
 
+
     # Embed | Edit Pinned Channel
     def edit_pinned_channel_embed(channel):
         embed = discord.Embed( # Embed Structure
-            description='✅ Pinned channel successfully modified to ' + channel + '.',
+            description='✅ Pinned channel successfully modified to ' + channel + '!',
             color=BotEmbed.c_success
         )
 
         return embed
+
 
 
     # Embed | Is Already Pinned Channel
@@ -72,11 +76,77 @@ class BotEmbed:
         return embed
 
 
+
     # Embed | No Pinned Channel Configure
     def none_pinned_channel_embed():
         embed = discord.Embed( # Embed Structure
-            description='🚫 Neither Pinned Channel has been set up. \n Please run the **!setpc #channel** to set up a Pinned Channel.',
+            description='🚫 Neither Pinned Channel has been set up. Please run **!setpc #channel** to set up a Pinned Channel.',
             color=BotEmbed.c_error
+        )
+
+        return embed
+
+
+
+    # Embed | Add Roles able to pinned
+    def add_authorized_roles_embed(role):
+        embed = discord.Embed( # Embed Structure
+            description='✅ ' + role + ' is now able to pinned messages !',
+            color=BotEmbed.c_success
+        )
+
+        return embed
+
+
+
+    # Embed | Already Authorized Roles able to pinned
+    def already_authorized_roles_embed(role):
+        embed = discord.Embed( # Embed Structure
+            description='⚠️ ' + role + ' is already able to pin message.',
+            color=BotEmbed.c_warning
+        )
+
+        return embed
+
+
+
+    # Embed | Add Roles able to pinned
+    def remove_authorized_roles_embed(role):
+        embed = discord.Embed( # Embed Structure
+            description='🗑️ ' + role + ' has successfully been removed !',
+            color=BotEmbed.c_success
+        )
+
+        return embed
+
+
+    # Embed | Roles is not in the Authorized list
+    def none_authorized_roles_embed(role):
+        embed = discord.Embed( # Embed Structure
+            description='⚠️ ' + role + ' is not an authorized role.',
+            color=BotEmbed.c_warning
+        )
+
+        return embed
+
+
+
+    # Embed | Roles Everyone or Here
+    def error_all_roles_embed():
+        embed = discord.Embed( # Embed Structure
+            description='🚫 You can\'t add global roles such as @everyone or @here.',
+            color=BotEmbed.c_error
+        )
+
+        return embed
+
+
+
+    # Embed | Authorized Roles
+    def authorized_roles_list_embed(roles):
+        embed = discord.Embed( # Embed Structure
+            description='💡 Auhtorized roles to pin messages : ' + roles,
+            color=BotEmbed.c_info
         )
 
         return embed

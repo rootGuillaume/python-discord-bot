@@ -5,6 +5,8 @@ from embeds import BotEmbed
 
 
 """
+0. empecher des bots de pin/reagir
+
 0. Commande Help
 
 0. Faire un !statut :
@@ -32,6 +34,7 @@ from embeds import BotEmbed
         6. Revoir la fonction pour check le channel pinned ou l'author = bot
 
 7. Autoriser seulement certain rôle à pinned
+    - empecher le @ d'everyone, here ou users ou bot
 """
 
 
@@ -40,19 +43,37 @@ from embeds import BotEmbed
 bot = commands.Bot(command_prefix='!') # Bot instance
 
 channel_id = None
+roles = []
 
 
-# ==========| Tool Functions |==========
+# ==========| Tool Function | Return id channel in integer |==========
 def return_pinned_channel(chan):
-
-    # Function to return the id channel in integer type
     if chan is not None:
         value = str(chan)
         value = value.replace('#', '')
         value = value.replace('<', '')
         value = value.replace('>', '')
-
         return int(value)
+
+
+
+# ==========| Tool Function | Get role id in integer |==========
+def return_role_id(role):
+    if role is not None:
+        value = str(role)
+        value = value.replace('@', '')
+        value = value.replace('&', '')
+        value = value.replace('>', '')
+        value = value.replace('<', '')
+        return int(value)
+
+
+
+# ==========| Tool Function | Build role string |==========
+def build_role_str(role):
+    value = '<@&' + str(role) + '>'
+    return value
+
 
 
 # ==========| Event | Bot is running ! |==========
@@ -98,6 +119,64 @@ async def edit_pinned_channel(ctx, channel):
     elif channel_id is None:
         embed = BotEmbed.none_pinned_channel_embed()
         await ctx.send(embed=embed)
+
+
+
+# ==========| Command | Set Authorized Role |==========
+@bot.command(name='addro')
+async def set_authorized_role(ctx, arg):
+    global roles
+
+    if arg == '@everyone' or arg == '@here':
+        embed = BotEmbed.error_all_roles_embed()
+        await ctx.send(embed=embed)
+
+    else:
+        if return_role_id(arg) in roles:
+            embed = BotEmbed.already_authorized_roles_embed(arg)
+            await ctx.send(embed=embed)
+
+        elif not return_role_id(arg) in roles:
+            role_id = return_role_id(arg)
+            embed = BotEmbed.add_authorized_roles_embed(arg)
+            roles.append(role_id)
+            await ctx.send(embed=embed)
+
+
+
+# ==========| Command | Remove Authorized Role |==========
+@bot.command(name='delro')
+async def remove_authorized_roles(ctx, arg):
+    #for role in roles:
+    if return_role_id(arg) in roles:
+        roles.remove(return_role_id(arg))
+        embed = BotEmbed.remove_authorized_roles_embed(arg)
+        await ctx.send(embed=embed)
+
+    elif not return_role_id(arg) in roles:
+        embed = BotEmbed.none_authorized_roles_embed(arg)
+        await ctx.send(embed=embed)
+
+
+
+# ==========| Command | Authorized Role list|==========
+@bot.command(name='allro')
+async def authorized_roles_list(ctx):
+    auth_roles = ''
+
+    for role in roles:
+        auth_roles += build_role_str(role) + ' '
+
+    embed = BotEmbed.authorized_roles_list_embed(str(auth_roles))
+    await ctx.send(embed=embed)
+
+
+
+# ==========| Command | Test |==========
+@bot.command(name='r')
+async def role(ctx):
+
+    await ctx.send(ctx.author.roles)
 
 
 
