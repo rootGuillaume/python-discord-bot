@@ -173,10 +173,15 @@ async def authorized_roles_list(ctx):
 
 
 # ==========| Command | Test |==========
-@bot.command(name='r')
+@bot.command(name='t')
 async def role(ctx):
+    for role in ctx.author.roles:
+        #print('role :', type(role))
 
-    await ctx.send(ctx.author.roles)
+        if return_role_id(role) in roles:
+            await ctx.send('autorisé à pin !')
+            break
+
 
 
 
