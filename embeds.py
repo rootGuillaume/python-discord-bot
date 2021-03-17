@@ -3,7 +3,12 @@ import discord
 
 class BotEmbed:
 
-    # Embed | Eender pinned message
+    # Color variables
+    c_success = 0x48c774
+    c_error = 0xff3860
+    c_warning = 0xffdd57
+
+    # Embed | Render pinned message
     def pinned_embed(msg, description, user):
 
         # Get message url | Reforge render
@@ -35,3 +40,43 @@ class BotEmbed:
         embed.add_field(name="🔗 Message Link", value=url_message, inline=False)
 
         return embed # Return embed object
+
+
+    # Embed | Set Pinned Channel
+    def set_pinned_channel_embed():
+        embed = discord.Embed( # Embed Structure
+            description='✅ Well done ! Pinned channel has been successfully configured !',
+            color=BotEmbed.c_success
+        )
+
+        return embed
+
+
+    # Embed | Edit Pinned Channel
+    def edit_pinned_channel_embed(channel):
+        embed = discord.Embed( # Embed Structure
+            description='✅ Pinned channel successfully modified to ' + channel + '.',
+            color=BotEmbed.c_success
+        )
+
+        return embed
+
+
+    # Embed | Is Already Pinned Channel
+    def is_already_pinned_channel_embed(channel):
+        embed = discord.Embed( # Embed Structure
+            description='⚠️ ' + channel + ' is already the Pinned Channel.',
+            color=BotEmbed.c_warning
+        )
+
+        return embed
+
+
+    # Embed | No Pinned Channel Configure
+    def none_pinned_channel_embed():
+        embed = discord.Embed( # Embed Structure
+            description='🚫 Neither Pinned Channel has been set up. \n Please run the **!setpc #channel** to set up a Pinned Channel.',
+            color=BotEmbed.c_error
+        )
+
+        return embed
