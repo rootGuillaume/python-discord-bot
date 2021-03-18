@@ -1,14 +1,6 @@
-import datetime
+import json, os
 
 
-brut = '14:04:45.177000'
-
-#for b in brut:
-#    if b == '.':
-#        print(brut. split(b))
-
-brut = brut.split(':')
-h = brut[0]
-m = brut[1]
-
-print(h + 'h' + m)
+with open('prefixes.json', 'r') as f:
+    #print('open')
+    json.load(f)

@@ -44,10 +44,33 @@ class BotEmbed:
 
 
 
+    # Embed | Bot Information
+    def bot_information_embed(bot, pin_channel, prefix, roles):
+        embed = discord.Embed(
+            description='Hello, I am Pin Bot!\nHere are the informations about me:\n' +
+                            '\n**Pin Channel :** ' + pin_channel + '\n' +
+                            '\n**Pin Prefix :** ' + prefix + '\n' +
+                            '\n**Pin Help :** ' + prefix + 'help' + '\n' +
+                            '\n**Allowed Roles :** ' + roles,
+            color=BotEmbed.c_info
+        )
+
+        embed.set_image(url='https://unsplash.com/photos/82TpEld0_e4')
+        embed.set_footer(text='Pin Bot | v0.1')
+
+        embed.set_author(
+            name=bot.display_name,
+            icon_url=bot.avatar_url
+        )
+
+        return embed
+
+
+
     # Embed | Set Pinned Channel
     def set_pinned_channel_embed():
         embed = discord.Embed( # Embed Structure
-            description='✅ Well done ! Pinned channel has been successfully configured !',
+            description='✅ Well done! Pin channel has been successfully configured!',
             color=BotEmbed.c_success
         )
 
@@ -58,7 +81,7 @@ class BotEmbed:
     # Embed | Edit Pinned Channel
     def edit_pinned_channel_embed(channel):
         embed = discord.Embed( # Embed Structure
-            description='✅ Pinned channel successfully modified to ' + channel + '!',
+            description='✅ Pin channel successfully modified to ' + channel + '!',
             color=BotEmbed.c_success
         )
 
@@ -69,19 +92,8 @@ class BotEmbed:
     # Embed | Is Already Pinned Channel
     def is_already_pinned_channel_embed(channel):
         embed = discord.Embed( # Embed Structure
-            description='⚠️ ' + channel + ' is already the Pinned Channel.',
+            description='⚠️ ' + channel + ' is already the Pin Channel.',
             color=BotEmbed.c_warning
-        )
-
-        return embed
-
-
-
-    # Embed | No Pinned Channel Configure
-    def none_pinned_channel_embed():
-        embed = discord.Embed( # Embed Structure
-            description='🚫 Neither Pinned Channel has been set up. Please run **!setpc #channel** to set up a Pinned Channel.',
-            color=BotEmbed.c_error
         )
 
         return embed
@@ -91,7 +103,7 @@ class BotEmbed:
     # Embed | Add Roles able to pinned
     def add_authorized_roles_embed(role):
         embed = discord.Embed( # Embed Structure
-            description='✅ ' + role + ' is now able to pinned messages !',
+            description='✅ ' + role + ' is now able to pinned messages!',
             color=BotEmbed.c_success
         )
 
@@ -113,7 +125,7 @@ class BotEmbed:
     # Embed | Add Roles able to pinned
     def remove_authorized_roles_embed(role):
         embed = discord.Embed( # Embed Structure
-            description='🗑️ ' + role + ' has successfully been removed !',
+            description='🗑️ ' + role + ' has successfully been removed!',
             color=BotEmbed.c_success
         )
 
@@ -147,6 +159,17 @@ class BotEmbed:
         embed = discord.Embed( # Embed Structure
             description='💡 Auhtorized roles to pin messages : ' + roles,
             color=BotEmbed.c_info
+        )
+
+        return embed
+
+
+
+    # Embed | Edit Pin Bot prefix
+    def edit_prefix_embed(prefix):
+        embed = discord.Embed( # Embed Structure
+            description='🤖 **' + prefix + '** is now the new prefix command!',
+            color=BotEmbed.c_success
         )
 
         return embed

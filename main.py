@@ -1,4 +1,4 @@
-import discord, sys, asyncio
+import discord, sys, asyncio, json, os
 from discord.ext import commands
 from credentials import Token
 from embeds import BotEmbed
@@ -8,6 +8,10 @@ from embeds import BotEmbed
 0. empecher des bots de pin/reagir
 
 0. Commande Help
+
+0. Ajouter plusieurs roles en une seule commande
+
+0. Stocker les id channel et role pour chaque serveur dans un json
 
 0. Faire un !statut :
     - Nom du bot et son statut
@@ -38,12 +42,54 @@ from embeds import BotEmbed
 """
 
 
-
 # ==========| Variables |==========
-bot = commands.Bot(command_prefix='!') # Bot instance
-
+default_prefix = '!'
+custom_prefix = {}
 channel_id = None
 roles = []
+
+
+
+# ==========| Command | Get Prefixes |==========
+def get_prefix(bot, message):
+    with open('prefixes.json', 'r') as f:
+        prefixes = json.load(f)
+
+    return prefixes[str(message.guild.id)]
+
+bot = commands.Bot(command_prefix=get_prefix) # Bot instance
+
+
+
+# ==========| Command | Defaut prefix on join |==========
+@bot.event
+async def on_guild_join(guild):
+    with open('prefixes.json', 'r') as f:
+        prefixes = json.load(f)
+
+    prefixes[str(guild.id)] = '!'
+
+    with open('prefixes.json', 'w') as f:
+        json.dump(prefixes, f)
+
+
+
+# ==========| Command | Edit Guild Prefixes |==========
+@bot.command(name='editpinbotprefix')
+@commands.has_permissions(administrator=True)
+async def on_guild_join(ctx, arg):
+
+    with open('prefixes.json', 'r') as f:
+        prefixes = json.load(f)
+
+    prefixes[str(ctx.guild.id)] = arg
+
+    with open('prefixes.json', 'w') as f:
+        json.dump(prefixes, f)
+
+    embed = BotEmbed.edit_prefix_embed(arg)
+    await ctx.send(embed=embed)
+
 
 
 # ==========| Tool Function | Return id channel in integer |==========
@@ -69,6 +115,13 @@ def return_role_id(role):
 
 
 
+# ==========| Tool Function | Build Pinned Channel string |==========
+def build_pin_channel_str(chan):
+    value = '<#' + str(chan) + '>'
+    return value
+
+
+
 # ==========| Tool Function | Build role string |==========
 def build_role_str(role):
     value = '<@&' + str(role) + '>'
@@ -84,26 +137,16 @@ async def on_ready():
 
 
 # ==========| Command | Set Pinned Channel |==========
-@bot.command(name='setpc')
+@bot.command(name='editpc')
 async def set_pinned_channel(ctx, channel):
     global channel_id # Global variable
 
-    channel_id = return_pinned_channel(channel)
+    if channel_id is None: # Embed to confirmed pinned channel setup
+        channel_id = return_pinned_channel(channel)
+        embed = BotEmbed.set_pinned_channel_embed()
+        await ctx.send(embed=embed)
 
-    # Embed to confirmed pinned channel setup
-    embed = BotEmbed.set_pinned_channel_embed()
-    await ctx.send(embed=embed)
-
-
-
-# ==========| Command | Edit Pinned Channel |==========
-@bot.command(name='editpc')
-async def edit_pinned_channel(ctx, channel):
-    global channel_id # Global variable
-
-    # If channel_id is not empty > Edit
-    if channel_id is not None:
-
+    elif channel_id is not None:
         # If channel id is differnt than global channel id > Authorized edit
         if channel_id != return_pinned_channel(channel):
             channel_id = return_pinned_channel(channel)
@@ -113,12 +156,6 @@ async def edit_pinned_channel(ctx, channel):
         else: # If channel id is differnt than global channel id > Cancel edit
             embed = BotEmbed.is_already_pinned_channel_embed(channel)
             await ctx.send(embed=embed)
-
-
-    # If channel_id is empty > Cancel
-    elif channel_id is None:
-        embed = BotEmbed.none_pinned_channel_embed()
-        await ctx.send(embed=embed)
 
 
 
@@ -175,13 +212,15 @@ async def authorized_roles_list(ctx):
 # ==========| Command | Test |==========
 @bot.command(name='t')
 async def role(ctx):
+    await ctx.send(pin_bot_prefix)
+"""
     for role in ctx.author.roles:
         #print('role :', type(role))
 
         if return_role_id(role) in roles:
             await ctx.send('autorisé à pin !')
             break
-
+"""
 
 
 
@@ -189,55 +228,71 @@ async def role(ctx):
 @bot.event
 async def on_message(message):
 
-    # Return channel object
-    def get_pinned_channel():
-        global channel_id
-        return bot.get_channel(channel_id)
+    if message.mentions:
+        if message.mentions[0] == bot.user:
+            with open('prefixes.json', 'r') as f:
+                prefixes = json.load(f)
 
-    pinned_channel = get_pinned_channel() # Get pinned channel object
+            prefix = prefixes[str(message.guild.id)]
+            role = ''
 
-    channel = message.channel # Get channel where pinned message has been sent
+            for r in roles:
+                role += build_role_str(r) + ' '
 
-    # Overide on_message function | Enable to send command
-    await bot.process_commands(message)
+            embed = BotEmbed.bot_information_embed(bot.user, build_pin_channel_str(channel_id), prefix, role)
+            await message.channel.send(embed=embed)
 
-    # Check the pinned emoji
-    def check(reaction, user):
-        return str(reaction.emoji) == '📌'
+    else:
+        # Return channel object
+        def get_pinned_channel():
+            global channel_id
+            return bot.get_channel(channel_id)
+
+        pinned_channel = get_pinned_channel() # Get pinned channel object
+
+        channel = message.channel # Get channel where pinned message has been sent
+
+        # Overide on_message function | Enable to send command
+        await bot.process_commands(message)
+
+        # Check the pinned emoji
+        def check(reaction, user):
+            return str(reaction.emoji) == '📌'
 
 
-    # Check the pinned channel
-    def is_pinned_channel():
-        if channel == pinned_channel:
-            return True
+        # Check the pinned channel
+        def is_pinned_channel():
+            if channel == pinned_channel:
+                return True
 
 
-    try: # Get User instance
-        reaction, user = await bot.wait_for('reaction_add', check=check)
-        user_pinned = user
+        try: # Get User instance
+            reaction, user = await bot.wait_for('reaction_add', check=check)
+            user_pinned = user
 
-    except asyncio.TimeoutError:
-        pass
+        except asyncio.TimeoutError:
+            pass
 
 
-    else: # Pinned process
-        if message.author != bot.user or not is_pinned_channel(): # If Bot isn't message author or channel is pinned channel
-            pinned_channel = get_pinned_channel()
+        else: # Pinned process
+            if message.author != bot.user or not is_pinned_channel(): # If Bot isn't message author or channel is pinned channel
+                pinned_channel = get_pinned_channel()
 
-            if message.attachments: # If the message is a file
-                image_url = message.attachments[0].url
-                embed = BotEmbed.pinned_embed(message, message.content, user)
-                embed.set_image(url=image_url) # Add an image to embed
+                if message.attachments: # If the message is a file
+                    image_url = message.attachments[0].url
+                    embed = BotEmbed.pinned_embed(message, message.content, user)
+                    embed.set_image(url=image_url) # Add an image to embed
 
-                await pinned_channel.send(embed=embed) # Send embed to pinned channel
-                pass
+                    await pinned_channel.send(embed=embed) # Send embed to pinned channel
+                    pass
 
-            else: # If the message has no attachments
-                embed = BotEmbed.pinned_embed(message, message.content, user)
-                content = message.content
+                else: # If the message has no attachments
+                    embed = BotEmbed.pinned_embed(message, message.content, user)
+                    content = message.content
 
-                await pinned_channel.send(embed=embed) # Send embed to pinned channel
-                pass
+                    await pinned_channel.send(embed=embed) # Send embed to pinned channel
+                    pass
+
 
 
 
