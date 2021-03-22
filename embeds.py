@@ -55,7 +55,9 @@ class BotEmbed:
             color=BotEmbed.c_info
         )
 
-        embed.set_image(url='https://unsplash.com/photos/82TpEld0_e4')
+        # //image.jpg is the desired extension !
+        # DO NOT CHANGE 'image' | Discord documentation
+        embed.set_image(url='attachment://image.jpg')
         embed.set_footer(text='Pin Bot | v0.1')
 
         embed.set_author(

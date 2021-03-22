@@ -5,13 +5,18 @@ from embeds import BotEmbed
 
 
 """
+0. l'auteur du message peut désépingler le message.
+
 0. empecher des bots de pin/reagir
+
+!!!! Appeler le Bot, Spin Bot
 
 0. Commande Help
 
 0. Ajouter plusieurs roles en une seule commande
 
 0. Stocker les id channel et role pour chaque serveur dans un json
+    - Possibilité de supprimer les données
 
 0. Faire un !statut :
     - Nom du bot et son statut
@@ -92,6 +97,22 @@ async def on_guild_join(ctx, arg):
 
 
 
+# ==========| Tool Method | Opening Json |==========
+def open_json(guild, prefix, chan, roles):
+    with open('pin_data.json', 'w') as f:
+
+        data['guilds'].append({
+            'guild_id': guild,
+            'prefix': prefix,
+            'pin_channel_id': chan,
+            'allowed_roles': roles
+        })
+
+        json.dump(data, f)
+        f.write('\n')
+
+
+
 # ==========| Tool Function | Return id channel in integer |==========
 def return_pinned_channel(chan):
     if chan is not None:
@@ -143,6 +164,11 @@ async def set_pinned_channel(ctx, channel):
 
     if channel_id is None: # Embed to confirmed pinned channel setup
         channel_id = return_pinned_channel(channel)
+
+
+
+        open_json(channel.guild.id, )
+
         embed = BotEmbed.set_pinned_channel_embed()
         await ctx.send(embed=embed)
 
@@ -228,6 +254,7 @@ async def role(ctx):
 @bot.event
 async def on_message(message):
 
+    # >>> If the bot is ping
     if message.mentions:
         if message.mentions[0] == bot.user:
             with open('prefixes.json', 'r') as f:
@@ -239,9 +266,15 @@ async def on_message(message):
             for r in roles:
                 role += build_role_str(r) + ' '
 
-            embed = BotEmbed.bot_information_embed(bot.user, build_pin_channel_str(channel_id), prefix, role)
-            await message.channel.send(embed=embed)
+            # (0) = Path + filename | (1) = filename is the desired extension
+            # DO NOT CHANGE 'image' | Discord documentation
+            file = discord.File('botpin.jpg', filename='image.jpg')
 
+            embed = BotEmbed.bot_information_embed(bot.user, build_pin_channel_str(channel_id), prefix, role)
+            await message.channel.send(file=file, embed=embed)
+
+
+    # >>> Any other message
     else:
         # Return channel object
         def get_pinned_channel():

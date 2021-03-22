@@ -1,0 +1,10 @@
+{
+  "guilds": [
+    {
+      "id": "04",
+      "prefix": null,
+      "channel": "CHA04",
+      "allowed_roles": null
+    },
+  ]
+}
